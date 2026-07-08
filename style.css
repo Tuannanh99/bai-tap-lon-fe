@@ -1,0 +1,12 @@
+body{
+    background:#f5f5f5;
+}
+
+.card{
+    margin-bottom:20px;
+}
+
+img{
+    height:180px;
+    object-fit:cover;
+}
