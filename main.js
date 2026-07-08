@@ -1,30 +1,70 @@
-fetch(ITEM_API)
+function loadItems() {
 
-.then(res=>res.json())
+    fetch(ITEM_API)
 
-.then(data=>{
+        .then(function (response) {
 
-let html="";
+            return response.json();
 
-data.forEach(item=>{
+        })
 
-html+=`
+        .then(function (data) {
+
+            showItems(data);
+
+        })
+
+        .catch(function () {
+
+            alert("Không thể tải dữ liệu!");
+
+        });
+
+}
+function showItems(list) {
+
+    var html = "";
+
+    for (var i = 0; i < list.length; i++) {
+
+        html += `
 
 <div class="col-md-4">
 
 <div class="card">
 
-<img src="${item.image}" class="card-img-top">
+<img src="${list[i].image}" class="card-img-top">
 
 <div class="card-body">
 
-<h5>${item.name}</h5>
+<h4 class="card-title">
 
-<p>${item.price} VNĐ</p>
+${list[i].name}
+
+</h4>
+
+<p class="price">
+
+${list[i].price} VNĐ
+
+</p>
+
+<p class="restaurant">
+
+${list[i].restaurant}
+
+</p>
+
+<p class="description">
+
+${list[i].description}
+
+</p>
 
 <button
 class="btn btn-success"
-onclick="order('${item.name}')">
+
+onclick="orderFood('${list[i].name}')">
 
 Đặt món
 
@@ -38,46 +78,96 @@ onclick="order('${item.name}')">
 
 `;
 
-});
+    }
 
-document.getElementById("productList").innerHTML=html;
+    document.getElementById("foodList").innerHTML = html;
 
-});
+}
+loadItems();
+document
+.getElementById("search")
+.addEventListener("keyup", searchFood);
 
-function order(name){
+function searchFood() {
 
-let customer=prompt("Tên của bạn");
+    var keyword = document
+        .getElementById("search")
+        .value
+        .toLowerCase();
 
-let quantity=prompt("Số lượng");
+    fetch(ITEM_API)
 
-fetch(ORDER_API,{
+        .then(function (response) {
 
-method:"POST",
+            return response.json();
 
-headers:{
+        })
 
-"Content-Type":"application/json"
+        .then(function (data) {
 
-},
+            var result = [];
 
-body:JSON.stringify({
+            for (var i = 0; i < data.length; i++) {
 
-customer:customer,
+                if (data[i].name.toLowerCase().includes(keyword)) {
 
-item:name,
+                    result.push(data[i]);
 
-quantity:quantity,
+                }
 
-status:"Mới"
+            }
 
-})
+            showItems(result);
 
-})
+        });
 
-.then(()=>{
+}
+function orderFood(foodName) {
 
-alert("Đặt món thành công");
+    var customer = prompt("Nhập tên của bạn");
 
-});
+    if (customer == null || customer == "") {
+
+        return;
+
+    }
+
+    var phone = prompt("Nhập số điện thoại");
+
+    var quantity = prompt("Nhập số lượng");
+
+    var order = {
+
+        customer: customer,
+
+        phone: phone,
+
+        item: foodName,
+
+        quantity: quantity,
+
+        status: "Mới"
+
+    };
+
+    fetch(ORDER_API, {
+
+        method: "POST",
+
+        headers: {
+
+            "Content-Type": "application/json"
+
+        },
+
+        body: JSON.stringify(order)
+
+    })
+
+        .then(function () {
+
+            alert("Đặt món thành công!");
+
+        });
 
 }
